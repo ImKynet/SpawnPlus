@@ -1,0 +1,20 @@
+[
+  {
+    "modid": "spawnplus",
+    "name": "SpawnPlus",
+    "description": "This mod add monster spawner in survival.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "kasmin"
+    ],
+    "credits": "",
+    "logoFile": "/assets/spawnplus/logo.png",
+    "screenshots": [
+
+    ],
+    "dependencies": ["mod_MinecraftForge"]
+  }
+]

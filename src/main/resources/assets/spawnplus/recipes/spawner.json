@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "spawnplus",
+
+  "pattern": [
+    "XXX",
+    "XDX",
+    "XXX"
+  ],
+
+  "key": {
+    "X": {
+      "item": "minecraft:iron_bars",
+      "data": 0
+    },
+    "D": {
+      "item": "minecraft:diamond_block",
+      "data": 0
+    }
+  },
+
+  "result": {
+    "item": "minecraft:mob_spawner",
+    "data": 0,
+    "count": 1
+  }
+}
