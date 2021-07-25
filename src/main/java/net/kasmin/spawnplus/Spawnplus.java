@@ -1,7 +1,20 @@
 package net.kasmin.spawnplus;
 
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Enchantments;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTBase;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -9,6 +22,8 @@ import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.logging.log4j.Logger;
+
+import java.util.Map;
 
 @Mod(
     modid = Spawnplus.MOD_ID,
@@ -25,7 +40,10 @@ public class Spawnplus {
    */
   @Mod.Instance(MOD_ID)
   public static Spawnplus INSTANCE;
+
   private static Logger LOGGER;
+  private static Boolean isDebug = true;
+  private EntityPlayer player;
 
   /**
    * This is the first initialization event. Register tile entities here.
@@ -55,10 +73,45 @@ public class Spawnplus {
 
   @SubscribeEvent
   public void dropSpawner(BlockEvent.HarvestDropsEvent event) {
+    EntityPlayer p = event.getHarvester();
     if (event.getState() == Blocks.MOB_SPAWNER.getDefaultState()) {
-      LOGGER.debug("DropChance:" + event.getDropChance());
-      LOGGER.debug("Drops:" + event.getDrops());
-      //event.getHarvester().getHeldItemMainhand().getItem().;
+
+      ItemStack heldItemStack = p.getHeldItem(p.getActiveHand());
+      Item heldItem = heldItemStack.getItem();
+      Map<Enchantment, Integer> enchantList = EnchantmentHelper.getEnchantments(heldItemStack);
+      Item dropItem = Item.getItemFromBlock(event.getState().getBlock());
+
+      if(isDebug) debug("EnchantList:" + enchantList.toString());
+      enchantList.forEach((key, value)->{
+        if(key == Enchantments.SILK_TOUCH){
+          if(isDebug) debug("hasSilktouch:" + (key == Enchantments.SILK_TOUCH));
+          event.getDrops().clear();
+          event.getDrops().add(new ItemStack(dropItem));
+          return;
+        }
+      });
+
+      if(isDebug) {
+        //debug("Drops:" + event.getDrops());
+        //debug("HarvestFrom:" + heldItem);
+        //debug("NBT:" + heldItem.getNBTShareTag(p.getHeldItem(p.getActiveHand())));
+      }
+
     }
+  }
+
+  @SubscribeEvent
+  public void onPlayerLoggedIn(EntityJoinWorldEvent event){
+    if(event.getEntity() instanceof EntityPlayer){
+      this.player = (EntityPlayer) event.getEntity();
+    }
+  }
+
+  /*
+    Debug to in-game message and debug logs
+   */
+  private void debug(String msg){
+    LOGGER.debug(msg);
+    this.player.sendMessage(new TextComponentString(msg));
   }
 }
