@@ -1,6 +1,11 @@
 buildscript {
     repositories {
-        maven { url = 'https://maven.minecraftforge.net' }
+        maven {
+            url = 'https://maven.minecraftforge.net'
+        }
+        maven{
+            url = 'https://plugins.gradle.org/m2/'
+        }
         mavenCentral()
     }
     dependencies {
@@ -23,6 +28,7 @@ sourceSets {
 }
 idea.module.outputDir file("out/production/classes")
 
+
 java.toolchain.languageVersion = JavaLanguageVersion.of(8) // Mojang ships Java 8 to end users, so your mod should target Java 8.
 
 minecraft {
@@ -38,6 +44,7 @@ minecraft {
     // Use non-default mappings at your own risk. they may not always work.
     // Simply re-run your setup task after changing the mappings to update your workspace.
     mappings channel: 'stable', version: '39-1.12'
+
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
@@ -118,8 +125,13 @@ dependencies {
     // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
 
 
-    // https://mvnrepository.com/artifact/org.ow2.asm/asm
-    //implementation group: 'org.ow2.asm', name: 'asm', version: '6.1.1'
+    /*
+    implementation 'org.ow2.asm:asm:6.2'
+    implementation 'org.ow2.asm:asm-util:6.2'
+    implementation 'org.ow2.asm:asm-tree:6.2'
+    implementation 'org.ow2.asm:asm-analysis:6.2'
+     */
+    //implementation 'org.ow2.asm:asm-debug-all:6.0_BETA'
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
