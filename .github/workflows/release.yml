@@ -5,9 +5,14 @@ name: Java Release with Gradle
 
 on:
   push:
+<<<<<<< HEAD
     branches: [ release ]
   pull_request:
     branches: [ release ]
+=======
+    tags: 
+      - "v[0-9].[0-9]+.[0-9]+"
+>>>>>>> 28f9844 (Update release.yml)
 
 jobs:
   build:
