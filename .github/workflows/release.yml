@@ -6,6 +6,7 @@ name: Java Release with Gradle
 on:
   push:
 <<<<<<< HEAD
+<<<<<<< HEAD
     branches: [ release ]
   pull_request:
     branches: [ release ]
@@ -13,9 +14,13 @@ on:
     tags: 
       - "v[0-9].[0-9]+.[0-9]+"
 >>>>>>> 28f9844 (Update release.yml)
+=======
+    tags: 
+      - "v[0-9].[0-9]+.[0-9]+"
+>>>>>>> 28f9844b93fa98f7696c0368e2890d74240596a6
 
 jobs:
-  build:
+  release:
 
     runs-on: ubuntu-latest
 
@@ -33,23 +38,50 @@ jobs:
         java-version: '1.8'
 >>>>>>> 26491c7 (Release version 1.0.0)
         distribution: 'adopt'
+        
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+      
     - name: Build with Gradle
+      run: ./gradlew build
+      
+    - name: Jar with Gradle
       run: ./gradlew jar
-    - name: Set version
-      id: version
+      
+    - name: Get the version
+      id: get_version
+      run: VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")
+      
+    - name: Get the repo name
+      id: get_repo
+      run: REPOSITORY=$(echo ${{ github.repository }} | sed -e "s#.*/##")
+
+    - name: Get commit summary
+      id: get_commit_summary
       run: |
-          REPOSITORY=$(echo ${{ github.repository }} | sed -e "s#.*/##")
-          VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")
-          echo ::set-output name=version::$VERSION
-          echo ::set-output name=filename::$REPOSITORY-$VERSION
-    - name: Upload a Release Asset
-      uses: actions/upload-release-asset@v1.0.2
+        PREVIOUS_TAG=$(git tag --sort=-creatordate | sed -n 2p)
+        echo "PREVIOUS_TAG: $PREVIOUS_TAG"
+        COMMIT_SUMMARY="$(git log --oneline --pretty=tformat:"%h %s" $PREVIOUS_TAG..${{ github.ref }})"
+        COMMIT_SUMMARY="${COMMIT_SUMMARY//$'\n'/'%0A'}"
+        echo ::set-output name=COMMIT_SUMMARY::$COMMIT_SUMMARY
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ./build/libs/*.jar
-        asset_name: $REPOSITORY-$VERSION.jar
-        asset_content_type: application/jar
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        release_name: Release ${{ steps.get_version.outputs.VERSION }}
+        body: |
+            ${{ steps.get_commit_summary.outputs.COMMIT_SUMMARY }}
+        draft: false
+        prerelease: false
+        
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v2.2.4
+      with:
+    # Artifact name
+        name: ${{ steps.get_repo.outputs.REPOSITORY }}.${{ steps.get_version.outputs.VERSION}} # optional, default is artifact
+    # A file, directory or wildcard pattern that describes what to upload
+        path: build/libs/*.jar

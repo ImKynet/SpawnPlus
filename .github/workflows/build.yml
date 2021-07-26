@@ -5,9 +5,9 @@ name: Java build with Gradle
 
 on:
   push:
-    branches: [ master, release, develop, feature/* ]
+    branches: [ release, develop, feature/* ]
   pull_request:
-    branches: [ master, release, develop, feature/* ]
+    branches: [ release, develop, feature/* ]
 
 jobs:
   build:
