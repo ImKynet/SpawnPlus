@@ -20,22 +20,38 @@ jobs:
       with:
         java-version: '8'
         distribution: 'adopt'
+        
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
+      
     - name: Build with Gradle
       run: ./gradlew build
+      
     - name: Jar with Gradle
       run: ./gradlew jar
-    - name: Set version
-      id: version
+      
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+    - name: Get commit summary
+      id: get_commit_summary
       run: |
-          REPOSITORY=$(echo ${{ github.repository }} | sed -e "s#.*/##")
-          VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")
-          echo ::set-output name=version::$VERSION
-          echo ::set-output name=filename::$REPOSITORY-$VERSION
+        PREVIOUS_TAG=$(git tag --sort=-creatordate | sed -n 2p)
+        echo "PREVIOUS_TAG: $PREVIOUS_TAG"
+        COMMIT_SUMMARY="$(git log --oneline --pretty=tformat:"%h %s" $PREVIOUS_TAG..${{ github.ref }})"
+        COMMIT_SUMMARY="${COMMIT_SUMMARY//$'\n'/'%0A'}"
+        echo ::set-output name=COMMIT_SUMMARY::$COMMIT_SUMMARY
+
     - name: Create Release
-      uses: softprops/action-gh-release@v1
-      with:
-          files: "build/libs/*.jar"
+      id: create_release
+      uses: actions/create-release@v1
       env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        release_name: Release ${{ steps.get_version.outputs.VERSION }}
+        body: |
+            ${{ steps.get_commit_summary.outputs.COMMIT_SUMMARY }}
+        draft: false
+        prerelease: false
