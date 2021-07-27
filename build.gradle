@@ -20,7 +20,7 @@ apply plugin: 'java'
 apply plugin: 'com.palantir.git-version'
 
 group = 'net.kasmin'
-version = gitVersion()
+version = gitVersion().toString().replace("v", "")
 archivesBaseName = 'spawnplus'
 
 sourceSets {
