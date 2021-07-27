@@ -38,7 +38,7 @@ jobs:
         
       - name: Get the release title
         id: get_title
-        run: echo "::set-output name=title::$(echo ${{ github.ref }}) | sed -e "s#refs/tags/v##g)"
+        run: echo "::set-output name=title::$(echo ${{ github.ref }} | sed -e "s#refs/tags/v##g)"
 
       - name: Get commit summary
         id: get_commit_summary
