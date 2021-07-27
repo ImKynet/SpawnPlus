@@ -35,6 +35,10 @@ jobs:
       - name: Get the repo name
         id: get_repo
         run: echo "::set-output name=repository::$(echo ${{ github.repository }} | sed -e "s#.*/##")"
+        
+      - name: Get the release title
+        id: get_title
+        run: echo "::set-output name=title::$(echo ${{ github.ref }}) | sed -e "s#refs/tags/v##g)"
 
       - name: Get commit summary
         id: get_commit_summary
@@ -47,21 +51,14 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          files: /build/libs/*.jar
           tag_name: ${{ steps.get_version.outputs.VERSION }}
-          release_name: Release ${{ steps.get_version.outputs.VERSION }}
+          name: Release ${{ steps.get_title.outputs.TITLE }}
           body: |
             ${{ steps.get_commit_summary.outputs.COMMIT_SUMMARY }}
           draft: false
           prerelease: false
-
-      - name: Upload a Build Artifact
-        uses: actions/upload-artifact@v2.2.4
-        with:
-          # Artifact name
-          name: ${{ steps.get_repo.outputs.REPOSITORY }}.${{ steps.get_version.outputs.VERSION}} # optional, default is artifact
-          # A file, directory or wildcard pattern that describes what to upload
-          path: build/libs/*.jar
