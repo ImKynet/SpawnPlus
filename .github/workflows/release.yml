@@ -30,11 +30,11 @@ jobs:
 
       - name: Get the version
         id: get_version
-        run: VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")
+        run: echo "::set-output name=version::$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")"
 
       - name: Get the repo name
         id: get_repo
-        run: REPOSITORY=$(echo ${{ github.repository }} | sed -e "s#.*/##")
+        run: echo "::set-output name=repository::$(echo ${{ github.repository }} | sed -e "s#.*/##")"
 
       - name: Get commit summary
         id: get_commit_summary
