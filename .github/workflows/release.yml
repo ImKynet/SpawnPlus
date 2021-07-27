@@ -31,14 +31,10 @@ jobs:
       - name: Get the version
         id: get_version
         run: VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")
-             echo $VERSION
-             echo ${{ VERSION }}
 
       - name: Get the repo name
         id: get_repo
         run: REPOSITORY=$(echo ${{ github.repository }} | sed -e "s#.*/##")
-             echo $REPOSITORY
-             echo ${{ REPOSITOTY }}
 
       - name: Get commit summary
         id: get_commit_summary
