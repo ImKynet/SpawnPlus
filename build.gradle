@@ -10,15 +10,17 @@ buildscript {
     }
     dependencies {
         classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
+        classpath "com.palantir.gradle.gitversion:gradle-git-version:0.12.3"
     }
 }
 
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'idea'
 apply plugin: 'java'
+apply plugin: 'com.palantir.git-version'
 
 group = 'net.kasmin'
-version = '1.0.0'
+version = gitVersion().toString().replace("v", "").replace(".dirty", "")
 archivesBaseName = 'spawnplus'
 
 sourceSets {

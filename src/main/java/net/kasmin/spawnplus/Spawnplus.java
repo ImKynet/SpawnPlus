@@ -1,17 +1,12 @@
 package net.kasmin.spawnplus;
 
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Enchantments;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
@@ -42,7 +37,7 @@ public class Spawnplus {
   public static Spawnplus INSTANCE;
 
   private static Logger LOGGER;
-  private static Boolean isDebug = true;
+  private static final Boolean isDebug = false;
   private EntityPlayer player;
 
   /**
@@ -81,28 +76,27 @@ public class Spawnplus {
       Map<Enchantment, Integer> enchantList = EnchantmentHelper.getEnchantments(heldItemStack);
       Item dropItem = Item.getItemFromBlock(event.getState().getBlock());
 
-      if(isDebug) debug("EnchantList:" + enchantList.toString());
-      enchantList.forEach((key, value)->{
-        if(key == Enchantments.SILK_TOUCH){
-          if(isDebug) debug("hasSilktouch:" + (key == Enchantments.SILK_TOUCH));
+      if (isDebug) debug("EnchantList:" + enchantList);
+      enchantList.forEach((key, value) -> {
+        if (key == Enchantments.SILK_TOUCH) {
+          if (isDebug) debug("hasSilktouch:" + true);
           event.getDrops().clear();
           event.getDrops().add(new ItemStack(dropItem));
-          return;
         }
       });
 
-      if(isDebug) {
-        //debug("Drops:" + event.getDrops());
-        //debug("HarvestFrom:" + heldItem);
-        //debug("NBT:" + heldItem.getNBTShareTag(p.getHeldItem(p.getActiveHand())));
+      if (isDebug) {
+        debug("Drops:" + event.getDrops());
+        debug("HarvestFrom:" + heldItem);
+        debug("NBT:" + heldItem.getNBTShareTag(p.getHeldItem(p.getActiveHand())));
       }
 
     }
   }
 
   @SubscribeEvent
-  public void onPlayerLoggedIn(EntityJoinWorldEvent event){
-    if(event.getEntity() instanceof EntityPlayer){
+  public void onPlayerLoggedIn(EntityJoinWorldEvent event) {
+    if (event.getEntity() instanceof EntityPlayer) {
       this.player = (EntityPlayer) event.getEntity();
     }
   }
@@ -110,7 +104,7 @@ public class Spawnplus {
   /*
     Debug to in-game message and debug logs
    */
-  private void debug(String msg){
+  private void debug(String msg) {
     LOGGER.debug(msg);
     this.player.sendMessage(new TextComponentString(msg));
   }

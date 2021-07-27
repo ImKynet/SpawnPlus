@@ -5,12 +5,10 @@ name: Java Release with Gradle
 
 on:
   push:
-    branches: [release]
-  pull_request:
-    branches: [release]
+    tags: "v*"
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,23 +18,47 @@ jobs:
         with:
           java-version: "8"
           distribution: "adopt"
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
+
       - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Jar with Gradle
         run: ./gradlew jar
-      - name: Set version
-        id: version
+
+      - name: Get the version
+        id: get_version
+        run: echo "::set-output name=version::$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")"
+
+      - name: Get the repo name
+        id: get_repo
+        run: echo "::set-output name=repository::$(echo ${{ github.repository }} | sed -e "s#.*/##")"
+        
+      - name: Get the release title
+        id: get_title
+        run: echo "::set-output name=title::$(echo ${{ github.ref }} | sed -e "s#refs/tags/v##g")"
+
+      - name: Get commit summary
+        id: get_commit_summary
         run: |
-          REPOSITORY=$(echo ${{ github.repository }} | sed -e "s#.*/##")
-          VERSION=$(echo ${{ github.ref }} | sed -e "s#refs/tags/##g")
-          echo ::set-output name=version::$VERSION
-          echo ::set-output name=filename::$REPOSITORY-$VERSION
-      - name: Upload a Release Asset
-        uses: actions/upload-release-asset@v1.0.2
+          PREVIOUS_TAG=$(git tag --sort=-creatordate | sed -n 2p)
+          echo "PREVIOUS_TAG: $PREVIOUS_TAG"
+          COMMIT_SUMMARY="$(git log --oneline --pretty=tformat:"%h %s" $PREVIOUS_TAG..${{ github.ref }})"
+          COMMIT_SUMMARY="${COMMIT_SUMMARY//$'\n'/'%0A'}"
+          echo ::set-output name=COMMIT_SUMMARY::$COMMIT_SUMMARY
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create-release.outputs.upload_url }}
-          asset_path: ./build/libs/*.jar
-          asset_name: $REPOSITORY-$VERSION.jar
-          asset_content_type: application/jar
+          files: build/libs/*.jar
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          name: Release ${{ steps.get_title.outputs.TITLE }}
+          body: |
+            ${{ steps.get_commit_summary.outputs.COMMIT_SUMMARY }}
+          draft: false
+          prerelease: false
