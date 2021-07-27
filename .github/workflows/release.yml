@@ -55,7 +55,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: /build/libs/*.jar
+          files: build/libs/*.jar
           tag_name: ${{ steps.get_version.outputs.VERSION }}
           name: Release ${{ steps.get_title.outputs.TITLE }}
           body: |
